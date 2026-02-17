@@ -1,0 +1,19 @@
+name: hot-crumble
+version: 0.1.0
+
+authors:
+  - Stefan Bilharz <stefan@sbsoftware.de>
+
+crystal: '>= 1.19.1'
+
+license: MIT
+
+dependencies:
+  crumble:
+    github: sbsoftware/crumble
+  crumble-turbo:
+    github: sbsoftware/crumble-turbo
+  crumble-crababel:
+    github: sbsoftware/crumble-crababel
+  crumble-jobs:
+    github: sbsoftware/crumble-jobs
