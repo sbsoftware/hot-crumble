@@ -1,4 +1,6 @@
 require "crumble"
-require "crumble-jobs"
 require "crumble-turbo"
+require "crumble-orma"
 require "crumble-crababel"
+require "crumble-jobs"
+require "crumble-stimulus"
