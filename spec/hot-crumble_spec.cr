@@ -4,6 +4,7 @@ require "crumble/spec/test_handler_context"
 require "crumble/spec/test_request_context"
 
 TEST_DB_CONNECTION_STRING = "sqlite3:%3Amemory%3A?max_pool_size=1"
+Orma.db_connection_string = TEST_DB_CONNECTION_STRING
 
 abstract class TestRecord < Orma::Record
   macro inherited
@@ -28,23 +29,19 @@ module HotCrumbleSpec
   end
 
   class WelcomePage < Crumble::Page
-    view do
-      template do
-        html do
-          body do
-            h1 { "Welcome from crumble" }
-          end
+    template do
+      html do
+        body do
+          h1 { "Welcome from crumble" }
         end
       end
     end
   end
 
   class StyledPage < Crumble::Page
-    view do
-      template do
-        main do
-          h2 { "Styled from crumble" }
-        end
+    template do
+      main do
+        h2 { "Styled from crumble" }
       end
     end
 
@@ -65,12 +62,10 @@ module HotCrumbleSpec
   end
 
   class LocalizedPage < Crumble::Page
-    view do
-      template do
-        html do
-          body do
-            h1 { HotCrumbleSpec::LocalizedGreeting.new(ctx).message }
-          end
+    template do
+      html do
+        body do
+          h1 { HotCrumbleSpec::LocalizedGreeting.new(ctx).message }
         end
       end
     end
@@ -78,6 +73,27 @@ module HotCrumbleSpec
 
   class LocalizedForm < Crumble::Form
     field email : String
+  end
+
+  class Article < TestRecord
+    id_column id : Int64
+    column title : String
+  end
+
+  class MissingArticleView
+    include Crumble::ContextView
+
+    template do
+      p { "Article not found" }
+    end
+  end
+
+  class ArticlePage < Crumble::Page
+    model article : Article, fallback_view: MissingArticleView
+
+    template do
+      p { article.title }
+    end
   end
 
   class PingAction < Crumble::Turbo::Action
@@ -101,6 +117,29 @@ module HotCrumbleSpec
 
     def perform : Nil
       @@runs << "#{@message}|#{@count}"
+    end
+
+    def self.runs : Array(String)
+      @@runs
+    end
+
+    def self.clear : Nil
+      @@runs.clear
+    end
+  end
+
+  class RetryableAuditError < Exception
+  end
+
+  class RetryingAuditJob < Crumble::Jobs::Job
+    retry_on RetryableAuditError, attempts: 1, wait: ->(attempt : Int32) { 10.milliseconds }
+    params token : String
+
+    @@runs = [] of String
+
+    def perform : Nil
+      @@runs << @token
+      raise RetryableAuditError.new("retry #{@token}") if @@runs.size == 1
     end
 
     def self.runs : Array(String)
@@ -200,6 +239,29 @@ describe "hot-crumble integration" do
     HotCrumbleSpec::Counter.find(counter.id.value).count.value.should eq(2)
   end
 
+  it "loads Orma models into crumble pages" do
+    article = HotCrumbleSpec::Article.create(title: "Upgraded article")
+    response = String.build do |io|
+      ctx = Crumble::Server::TestRequestContext.new(response_io: io, method: "GET", resource: HotCrumbleSpec::ArticlePage.uri_path(article_id: article.id.value))
+      HotCrumbleSpec::ArticlePage.handle(ctx).should be_true
+      ctx.response.status_code.should eq(200)
+      ctx.response.flush
+    end
+
+    response.should contain("Upgraded article")
+  end
+
+  it "renders the configured fallback view when a page model is missing" do
+    response = String.build do |io|
+      ctx = Crumble::Server::TestRequestContext.new(response_io: io, method: "GET", resource: HotCrumbleSpec::ArticlePage.uri_path(article_id: 404))
+      HotCrumbleSpec::ArticlePage.handle(ctx).should be_true
+      ctx.response.status_code.should eq(404)
+      ctx.response.flush
+    end
+
+    response.should contain("Article not found")
+  end
+
   it "renders localized pages from the request Accept-Language header" do
     response = String.build do |io|
       ctx = Crumble::Server::TestRequestContext.new(response_io: io, method: "GET", resource: HotCrumbleSpec::LocalizedPage.uri_path, headers: HTTP::Headers{"Accept-Language" => "de"})
@@ -238,12 +300,29 @@ describe "hot-crumble integration" do
     HotCrumbleSpec::AuditJob.runs.should eq(["from action|2"])
   end
 
+  it "retries jobs configured with retry_on" do
+    HotCrumbleSpec::RetryingAuditJob.clear
+    Crumble::Jobs.set_queue(Crumble::Jobs::InMemoryQueue.new)
+    HotCrumbleSpec::RetryingAuditJob.enqueue(token: "retry")
+
+    worker = Crumble::Jobs::Worker.new(max_concurrency: 1, poll_interval: 1.millisecond)
+    deadline = Time.instant + 2.seconds
+    until HotCrumbleSpec::RetryingAuditJob.runs.size == 2 || Time.instant >= deadline
+      worker.run_once(20.milliseconds)
+      sleep 1.millisecond
+    end
+
+    HotCrumbleSpec::RetryingAuditJob.runs.should eq(["retry", "retry"])
+    worker.run_once(20.milliseconds).should be_false
+  end
+
   it "registers stimulus controllers in the shared layout assets" do
     controller_name = HotCrumbleSpec::ClipboardController.controller_name
     layout = HotCrumbleSpec::ApplicationLayout.new(ctx: test_handler_context)
     asset_file = AssetFileRegistry.query(Crumble::StimulusControllers.uri_path).not_nil!
 
     layout.head_children.should contain(Crumble::StimulusControllers)
+    Crumble::StimulusControllers.to_js.should contain("Stimulus.register(#{HotCrumbleSpec::ClipboardController.controller_name.to_js_ref}, #{HotCrumbleSpec::ClipboardController.to_js_ref});")
     asset_file.contents.should contain("class HotCrumbleSpec_ClipboardController extends Controller")
     HotCrumbleSpec::ClipboardController.message_value("Copied").attr_name.should eq("data-#{controller_name}-message-value")
     HotCrumbleSpec::ClipboardController.output_target.attr_name.should eq("data-#{controller_name}-target")
