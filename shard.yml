@@ -11,28 +11,28 @@ license: MIT
 dependencies:
   crumble:
     github: sbsoftware/crumble
-    version: ~> 0.30.0
+    version: ~> 0.31.1
   crumble-turbo:
     github: sbsoftware/crumble-turbo
-    version: ~> 0.18.0
+    version: ~> 0.18.1
   crumble-orma:
     github: sbsoftware/crumble-orma
-    version: ~> 0.3.0
+    version: ~> 0.4.0
   crumble-crababel:
     github: sbsoftware/crumble-crababel
-    version: ~> 0.1.0
+    version: ~> 0.1.1
   crumble-jobs:
     github: sbsoftware/crumble-jobs
-    version: ~> 0.1.0
+    version: ~> 0.2.1
   crumble-stimulus:
     github: sbsoftware/crumble-stimulus
-    version: ~> 0.4.0
+    version: ~> 0.4.3
   css:
     github: sbsoftware/css.cr
-    version: ~> 0.3.0
+    version: ~> 0.4.0
   js:
     github: sbsoftware/js.cr
-    version: ~> 1.0
+    version: ~> 1.8.0
   to_html:
     github: sbsoftware/to_html.cr
-    version: ~> 1.0
+    version: ~> 1.7.1
