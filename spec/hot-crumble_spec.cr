@@ -1,5 +1,6 @@
 require "./spec_helper"
 require "sqlite3"
+require "uri"
 require "crumble/spec/test_handler_context"
 require "crumble/spec/test_request_context"
 
@@ -189,6 +190,43 @@ module HotCrumbleSpec
     end
   end
 
+  class EditableCounter < TestRecord
+    id_column id : Int64
+    column count : Int32 = 0
+
+    model_template :count_view do
+      div { count }
+    end
+
+    model_action :set_count, count_view do
+      form do
+        field value : Int32, label: "Count", type: :select, allow_blank: false, options: count_options
+
+        def count_options
+          [{"", "Pick a count"}, {model.count.value.to_s, "Current #{model.count.value}"}]
+        end
+      end
+
+      controller do
+        model.update(count: form.value.not_nil!) if form.valid?
+      end
+
+      view do
+        template do
+          action_form(hidden: false).to_html do
+            if errors = action.form.errors
+              div class: "errors" do
+                errors.join(",")
+              end
+            end
+
+            button { "Set Count" }
+          end
+        end
+      end
+    end
+  end
+
   class ClipboardController < Stimulus::Controller
     values message: String
     targets :output
@@ -237,6 +275,36 @@ describe "hot-crumble integration" do
     HotCrumbleSpec::Counter::IncrementAction.handle(ctx).should be_true
 
     HotCrumbleSpec::Counter.find(counter.id.value).count.value.should eq(2)
+  end
+
+  it "renders model-aware action form options from crumble-orma models" do
+    counter = HotCrumbleSpec::EditableCounter.new(id: 8_i64, count: 4)
+    ctx = Crumble::Server::TestRequestContext.new
+
+    counter.set_count_action_template(ctx).to_html.should contain(%(<option value="4">Current 4</option>))
+  end
+
+  it "updates models from model-aware crumble-turbo action forms" do
+    counter = HotCrumbleSpec::EditableCounter.create(count: 1)
+    ctx = Crumble::Server::TestRequestContext.new(method: "POST", resource: HotCrumbleSpec::EditableCounter::SetCountAction.uri_path(counter.id.value), body: URI::Params.encode({value: "5"}))
+    HotCrumbleSpec::EditableCounter::SetCountAction.handle(ctx).should be_true
+
+    HotCrumbleSpec::EditableCounter.find(counter.id.value).count.value.should eq(5)
+  end
+
+  it "preserves errors and model-aware action form options on invalid submission" do
+    counter = HotCrumbleSpec::EditableCounter.create(count: 2)
+    response = String.build do |io|
+      ctx = Crumble::Server::TestRequestContext.new(response_io: io, method: "POST", resource: HotCrumbleSpec::EditableCounter::SetCountAction.uri_path(counter.id.value), body: URI::Params.encode({value: ""}))
+      HotCrumbleSpec::EditableCounter::SetCountAction.handle(ctx).should be_true
+      ctx.response.status_code.should eq(200)
+      ctx.response.flush
+    end
+
+    HotCrumbleSpec::EditableCounter.find(counter.id.value).count.value.should eq(2)
+    response.should contain(%(<div class="errors">value</div>))
+    response.should contain(%(<option value="" selected>Pick a count</option>))
+    response.should contain(%(<option value="2">Current 2</option>))
   end
 
   it "loads Orma models into crumble pages" do
