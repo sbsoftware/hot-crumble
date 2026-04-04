@@ -273,15 +273,6 @@ Beyond pages, models, and actions, `hot-crumble` also bundles:
 
 - Install dependencies: `shards install`
 - Run tests: `crystal spec`
-- Format code before PRs: `crystal tool format`
-
-## Contributing
-
-1. Fork it (<https://github.com/sbsoftware/hot-crumble/fork>)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
 
 ## Contributors
 
