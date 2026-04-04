@@ -40,6 +40,7 @@ The following example is designed to be pasted into a fresh folder and run as a 
 - a `ProjectPage` that loads a model from the route
 - a `create_child_action` for adding tasks
 - a `boolean_flip_action` for toggling a task between open and done
+- scoped inline styles
 
 ### `shard.yml`
 
@@ -86,7 +87,7 @@ require "./models/**"
 require "./views/**"
 require "./pages/**"
 
-if Project.count == 0
+if Project.all.empty?
   project = Project.create(name: "Launch checklist")
   Task.create(project_id: project.id.value, title: "Write the landing page")
   Task.create(project_id: project.id.value, title: "Add live task updates")
@@ -113,12 +114,18 @@ class Task < ApplicationRecord
   column title : String
   column done : Bool = false
 
+  css_class TaskRow
+  css_class TaskStatus
+  css_class TaskTitle
+
   model_template :row_view do
-    li do
-      strong { done ? "DONE" : "OPEN" }
-      text " "
-      span { title }
-      text " "
+    li TaskRow do
+      strong TaskStatus do
+        done.value ? "DONE" : "OPEN"
+      end
+      span TaskTitle do
+        title.value
+      end
       switch_done_action_template(ctx).to_html
     end
   end
@@ -132,6 +139,28 @@ class Task < ApplicationRecord
       end
     end
   end
+
+  style do
+    rule TaskRow do
+      display :flex
+      align_items :center
+      gap 12.px
+      padding_top 10.px
+      padding_bottom 10.px
+      border_bottom 1.px, :solid, "#e2e8f0"
+    end
+
+    rule TaskStatus do
+      font_size 12.px
+      font_weight 700
+      color "#475569"
+      letter_spacing 0.08.em
+    end
+
+    rule TaskTitle do
+      flex_grow 1
+    end
+  end
 end
 ```
 
@@ -141,20 +170,24 @@ end
 class Project < ApplicationRecord
   column name : String
 
+  css_class Card
+  css_class TaskList
+  css_class Errors
+
   def tasks
     Task.where(project_id: id.value).order_by_id!
   end
 
   create_child_action :add_task, Task, project_id, tasks_view do
     form do
-      field title : String, allow_blank: false
+      field title : String, label: "Task title", allow_blank: false
     end
 
     view do
       template do
         action_form(hidden: false).to_html do
           if errors = action.form.errors
-            div class: "errors" do
+            div Errors do
               "Please enter a title."
             end
           end
@@ -166,16 +199,61 @@ class Project < ApplicationRecord
   end
 
   model_template :tasks_view do
-    section do
+    section Card do
       h2 { "Tasks" }
 
-      ul do
+      ul TaskList do
         tasks.each do |task|
           task.row_view.renderer(ctx)
         end
       end
 
       add_task_action_template(ctx).to_html
+    end
+  end
+
+  style do
+    rule Card do
+      background_color :white
+      border_radius 20.px
+      padding 24.px
+      box_shadow 0.px, 18.px, 45.px, rgb(15, 23, 42, alpha: 8.percent)
+    end
+
+    rule TaskList do
+      list_style :none
+      padding_left 0.px
+    end
+
+    rule Errors do
+      margin_bottom 12.px
+      color "#b91c1c"
+      font_weight 600
+    end
+
+    rule button do
+      background_color "#2563eb"
+      color :white
+      border :none
+      border_radius 999.px
+      padding_top 10.px
+      padding_bottom 10.px
+      padding_left 14.px
+      padding_right 14.px
+      cursor :pointer
+    end
+
+    rule input do
+      width 100.percent
+      max_width 320.px
+      padding_top 10.px
+      padding_bottom 10.px
+      padding_left 12.px
+      padding_right 12.px
+      margin_bottom 12.px
+      border 1.px, :solid, "#cbd5e1"
+      border_radius 12.px
+      box_sizing :border_box
     end
   end
 end
@@ -200,12 +278,16 @@ end
 
 ```crystal
 class HomePage < ApplicationPage
+  root_path "/"
+
+  css_class ProjectList
+
   template do
     main do
       h1 { "Demo board" }
       p { "Open the seeded project to try pages, models, and actions together." }
 
-      ul do
+      ul ProjectList do
         Project.all.order_by_id!.each do |project|
           li do
             a href: ProjectPage.uri_path(project_id: project.id.value) do
@@ -214,6 +296,42 @@ class HomePage < ApplicationPage
           end
         end
       end
+    end
+  end
+
+  style do
+    rule body do
+      margin 0.px
+      background_color "#f3f6fb"
+      color "#1f2937"
+      font_family "IBM Plex Sans", "Segoe UI", :sans_serif
+      line_height 1.5
+    end
+
+    rule main do
+      max_width 720.px
+      margin_top 48.px
+      margin_bottom 48.px
+      margin_left :auto
+      margin_right :auto
+      padding_left 24.px
+      padding_right 24.px
+    end
+
+    rule h1 do
+      margin_bottom 8.px
+      font_size 32.px
+    end
+
+    rule a do
+      color "#2563eb"
+    end
+
+    rule ProjectList do
+      background_color :white
+      border_radius 20.px
+      padding 24.px
+      box_shadow 0.px, 18.px, 45.px, rgb(15, 23, 42, alpha: 8.percent)
     end
   end
 end
