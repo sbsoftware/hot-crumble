@@ -36,3 +36,13 @@ dependencies:
   to_html:
     github: sbsoftware/to_html.cr
     version: ~> 1.7.1
+
+targets:
+  hot-crumble:
+    main: src/cli.cr
+
+scripts:
+  postinstall: shards build
+
+executables:
+  - hot-crumble
