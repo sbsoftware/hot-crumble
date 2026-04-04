@@ -1,0 +1,2 @@
+style ApplicationStyle do
+end
