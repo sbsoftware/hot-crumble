@@ -1,3 +1,4 @@
+require "sqlite3"
 require "hot-crumble"
 
 # Load base application types first so files in nested folders can reference them.
