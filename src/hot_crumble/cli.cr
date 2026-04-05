@@ -11,6 +11,8 @@ module HotCrumble
     CONFIG_FOLDER            = "config"
     LOCALES_FOLDER           = Path.new(CONFIG_FOLDER, "locales")
     CRUMBLE_FOLDER           = Path.new(SRC_FOLDER, "crumble")
+    TMP_FOLDER               = "tmp"
+    TMP_SESSIONS_FOLDER      = Path.new(TMP_FOLDER, "sessions")
     MODELS_FOLDER            = Path.new(SRC_FOLDER, "models")
     ACTIONS_FOLDER           = Path.new(SRC_FOLDER, "actions")
     VIEWS_FOLDER             = Path.new(SRC_FOLDER, "views")
@@ -61,6 +63,8 @@ module HotCrumble
     def init : Nil
       ensure_dir(SRC_FOLDER)
       ensure_dir(CONFIG_FOLDER)
+      ensure_dir(TMP_FOLDER)
+      ensure_dir(TMP_SESSIONS_FOLDER)
       ensure_dir(LOCALES_FOLDER)
       ensure_dir(CRUMBLE_FOLDER)
       ensure_dir(MODELS_FOLDER)
