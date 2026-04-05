@@ -1,0 +1,15 @@
+en:
+  welcome_page:
+    welcome: "Welcome to the Crumble framework!"
+de:
+  welcome_page:
+    welcome: "Willkommen beim Crumble-Framework!"
+es:
+  welcome_page:
+    welcome: "Bienvenido al framework Crumble!"
+fr:
+  welcome_page:
+    welcome: "Bienvenue dans le framework Crumble !"
+pt:
+  welcome_page:
+    welcome: "Bem-vindo ao framework Crumble!"

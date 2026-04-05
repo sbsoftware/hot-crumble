@@ -8,6 +8,8 @@ module HotCrumble
     end
 
     SRC_FOLDER               = "src"
+    CONFIG_FOLDER            = "config"
+    LOCALES_FOLDER           = Path.new(CONFIG_FOLDER, "locales")
     CRUMBLE_FOLDER           = Path.new(SRC_FOLDER, "crumble")
     MODELS_FOLDER            = Path.new(SRC_FOLDER, "models")
     ACTIONS_FOLDER           = Path.new(SRC_FOLDER, "actions")
@@ -22,6 +24,7 @@ module HotCrumble
     APPLICATION_RECORD       = {{read_file "#{__DIR__}/cli/templates/application_record.cr"}}
     APPLICATION_RESOURCE     = {{read_file "#{__DIR__}/cli/templates/application_resource.cr"}}
     APPLICATION_STYLE        = {{read_file "#{__DIR__}/cli/templates/application_style.cr"}}
+    EN_LOCALE_TEMPLATE       = {{read_file "#{__DIR__}/cli/templates/en.yml"}}
     ENVIRONMENT_TEMPLATE     = {{read_file "#{__DIR__}/cli/templates/environment.cr"}}
     MAIN_TEMPLATE            = {{read_file "#{__DIR__}/cli/templates/main.cr"}}
     REQUEST_CONTEXT_TEMPLATE = {{read_file "#{__DIR__}/cli/templates/request_context.cr"}}
@@ -57,6 +60,8 @@ module HotCrumble
 
     def init : Nil
       ensure_dir(SRC_FOLDER)
+      ensure_dir(CONFIG_FOLDER)
+      ensure_dir(LOCALES_FOLDER)
       ensure_dir(CRUMBLE_FOLDER)
       ensure_dir(MODELS_FOLDER)
       ensure_dir(ACTIONS_FOLDER)
@@ -75,6 +80,7 @@ module HotCrumble
       ensure_file("#{VIEWS_FOLDER}/application_layout.cr", APPLICATION_LAYOUT)
       ensure_file("#{PAGES_FOLDER}/application_page.cr", APPLICATION_PAGE)
       ensure_file("#{PAGES_FOLDER}/welcome_page.cr", WELCOME_PAGE)
+      ensure_file("#{LOCALES_FOLDER}/en.yml", EN_LOCALE_TEMPLATE)
       ensure_file(".env", ENV_TEMPLATE)
       ensure_file("watch.sh", watch_script_template, 0o755)
       ensure_file("AGENTS.md", AGENTS_TEMPLATE)
