@@ -1,3 +1,14 @@
 en:
   app:
     title: "hot-crumble"
+  hot_crumble_spec:
+    localized_greeting: "Hello"
+    localized_form:
+      email: "Email address"
+de:
+  app:
+    title: "heisser-krumel"
+  hot_crumble_spec:
+    localized_greeting: "Hallo"
+    localized_form:
+      email: "E-Mail-Adresse"
