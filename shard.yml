@@ -11,10 +11,10 @@ license: MIT
 dependencies:
   crumble:
     github: sbsoftware/crumble
-    version: ~> 0.31.1
+    version: ~> 0.32.0
   crumble-turbo:
     github: sbsoftware/crumble-turbo
-    version: ~> 0.19.0
+    version: ~> 0.20.0
   crumble-orma:
     github: sbsoftware/crumble-orma
     version: ~> 0.5.0
@@ -29,10 +29,10 @@ dependencies:
     version: ~> 0.4.3
   css:
     github: sbsoftware/css.cr
-    version: ~> 0.4.0
+    version: ~> 0.5.0
   js:
     github: sbsoftware/js.cr
-    version: ~> 1.8.0
+    version: ~> 1.8.2
   to_html:
     github: sbsoftware/to_html.cr
     version: ~> 1.7.1
