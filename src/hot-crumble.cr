@@ -4,3 +4,5 @@ require "crumble-orma"
 require "crumble-crababel"
 require "crumble-jobs"
 require "crumble-stimulus"
+
+require "./ext/**"

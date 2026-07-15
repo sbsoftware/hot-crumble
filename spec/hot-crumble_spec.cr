@@ -111,6 +111,20 @@ module HotCrumbleSpec
     end
   end
 
+  class LocalizedAction < Crumble::Turbo::Action
+    controller do
+      action_template.turbo_stream.to_html(ctx.response)
+    end
+
+    view do
+      template do
+        action_form(hidden: false).to_html do
+          button { t.submit }
+        end
+      end
+    end
+  end
+
   class AuditJob < Crumble::Jobs::Job
     params message : String, count : Int32
 
@@ -344,6 +358,12 @@ describe "hot-crumble integration" do
     form = HotCrumbleSpec::LocalizedForm.new(test_handler_context(headers: HTTP::Headers{"Accept-Language" => "de"}), email: "ada@example.com")
 
     form.to_html.should contain(">E-Mail-Adresse<")
+  end
+
+  it "translates crumble-turbo action templates through crumble-crababel" do
+    ctx = Crumble::Server::TestRequestContext.new(headers: HTTP::Headers{"Accept-Language" => "de"})
+
+    HotCrumbleSpec::LocalizedAction.new(ctx).action_template.to_html.should contain(">Absenden<")
   end
 
   it "enqueues crumble-jobs work from a crumble-turbo action" do
