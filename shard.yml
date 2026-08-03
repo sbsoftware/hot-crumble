@@ -1,5 +1,5 @@
 name: hot-crumble
-version: 0.4.0
+version: 0.5.0
 
 authors:
   - Stefan Bilharz <stefan@sbsoftware.de>
@@ -11,16 +11,16 @@ license: MIT
 dependencies:
   crumble:
     github: sbsoftware/crumble
-    version: ~> 0.32.0
+    version: ~> 0.33.0
   crumble-turbo:
     github: sbsoftware/crumble-turbo
-    version: ~> 0.20.0
+    version: ~> 0.20.2
   crumble-orma:
     github: sbsoftware/crumble-orma
     version: ~> 0.5.0
   crumble-crababel:
     github: sbsoftware/crumble-crababel
-    version: ~> 0.1.1
+    version: ~> 0.2.0
   crumble-jobs:
     github: sbsoftware/crumble-jobs
     version: ~> 0.2.1

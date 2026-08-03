@@ -72,6 +72,16 @@ module HotCrumbleSpec
     end
   end
 
+  class DirectLocalizedPage < Crumble::Page
+    template do
+      html do
+        body do
+          h1 { t }
+        end
+      end
+    end
+  end
+
   class LocalizedForm < Crumble::Form
     field email : String
   end
@@ -106,6 +116,20 @@ module HotCrumbleSpec
       template do
         action_form(hidden: false).to_html do
           button { "Ping" }
+        end
+      end
+    end
+  end
+
+  class LocalizedAction < Crumble::Turbo::Action
+    controller do
+      action_template.turbo_stream.to_html(ctx.response)
+    end
+
+    view do
+      template do
+        action_form(hidden: false).to_html do
+          button { t.submit }
         end
       end
     end
@@ -234,6 +258,16 @@ module HotCrumbleSpec
     action :copy do
     end
   end
+
+  robots do
+    sitemap "https://example.test/sitemap.xml"
+
+    user_agent "*" do
+      allow HotCrumbleSpec::WelcomePage
+      disallow "/admin"
+      crawl_delay 5
+    end
+  end
 end
 
 describe "hot-crumble integration" do
@@ -340,10 +374,32 @@ describe "hot-crumble integration" do
     response.should contain("<h1>Hallo</h1>")
   end
 
+  it "translates directly from crumble pages through crumble-crababel" do
+    response = String.build do |io|
+      ctx = Crumble::Server::TestRequestContext.new(response_io: io, method: "GET", resource: HotCrumbleSpec::DirectLocalizedPage.uri_path, headers: HTTP::Headers{"Accept-Language" => "de"})
+      HotCrumbleSpec::DirectLocalizedPage.handle(ctx).should be_true
+      ctx.response.flush
+    end
+
+    response.should contain("<h1>Direkter Seiten-Gruss</h1>")
+  end
+
+  it "registers Crumble robots.txt as a text asset" do
+    Crumble::Robots.uri_path.should eq("/robots.txt")
+    Crumble::Robots.to_txt.should eq("Sitemap: https://example.test/sitemap.xml\nUser-agent: *\n  Allow: #{HotCrumbleSpec::WelcomePage.uri_path}\n  Disallow: /admin\n  Crawl-delay: 5\n")
+    AssetFileRegistry.query(Crumble::Robots.uri_path).not_nil!.mime_type.should eq("text/plain")
+  end
+
   it "translates crumble form labels through crumble-crababel" do
     form = HotCrumbleSpec::LocalizedForm.new(test_handler_context(headers: HTTP::Headers{"Accept-Language" => "de"}), email: "ada@example.com")
 
     form.to_html.should contain(">E-Mail-Adresse<")
+  end
+
+  it "translates crumble-turbo action templates through crumble-crababel" do
+    ctx = Crumble::Server::TestRequestContext.new(headers: HTTP::Headers{"Accept-Language" => "de"})
+
+    HotCrumbleSpec::LocalizedAction.new(ctx).action_template.to_html.should contain(">Absenden<")
   end
 
   it "enqueues crumble-jobs work from a crumble-turbo action" do

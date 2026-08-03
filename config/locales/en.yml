@@ -2,6 +2,10 @@ en:
   app:
     title: "hot-crumble"
   hot_crumble_spec:
+    localized_action:
+      template:
+        submit: "Submit"
+    direct_localized_page: "Direct page greeting"
     localized_greeting: "Hello"
     localized_form:
       email: "Email address"
@@ -9,6 +13,10 @@ de:
   app:
     title: "heisser-krumel"
   hot_crumble_spec:
+    localized_action:
+      template:
+        submit: "Absenden"
+    direct_localized_page: "Direkter Seiten-Gruss"
     localized_greeting: "Hallo"
     localized_form:
       email: "E-Mail-Adresse"
