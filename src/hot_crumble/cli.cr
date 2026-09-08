@@ -19,6 +19,7 @@ module HotCrumble
     RESOURCES_FOLDER         = Path.new(SRC_FOLDER, "resources")
     STYLES_FOLDER            = Path.new(SRC_FOLDER, "styles")
     PAGES_FOLDER             = Path.new(SRC_FOLDER, "pages")
+    DOCKERFILE_TEMPLATE      = {{read_file "#{__DIR__}/cli/templates/Dockerfile"}}
     ENV_TEMPLATE             = {{read_file "#{__DIR__}/cli/templates/.env"}}
     AGENTS_TEMPLATE          = {{read_file "#{__DIR__}/cli/templates/AGENTS.md"}}
     APPLICATION_LAYOUT       = {{read_file "#{__DIR__}/cli/templates/application_layout.cr"}}
@@ -86,6 +87,7 @@ module HotCrumble
       ensure_file("#{PAGES_FOLDER}/welcome_page.cr", WELCOME_PAGE)
       ensure_file("#{LOCALES_FOLDER}/en.yml", EN_LOCALE_TEMPLATE)
       ensure_file(".env", ENV_TEMPLATE)
+      ensure_file("Dockerfile", DOCKERFILE_TEMPLATE)
       ensure_file("watch.sh", watch_script_template, 0o755)
       ensure_file("AGENTS.md", AGENTS_TEMPLATE)
     end
