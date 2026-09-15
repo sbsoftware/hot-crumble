@@ -9,33 +9,87 @@ crystal: '>= 1.19.1'
 license: MIT
 
 dependencies:
+  base58:
+    github: wyhaines/base58.cr
+    version: 0.2.2
+  crababel:
+    github: sbsoftware/crababel
+    version: 0.2.0
   crumble:
     github: sbsoftware/crumble
-    version: ~> 0.33.0
+    version: 0.33.0
   crumble-turbo:
     github: sbsoftware/crumble-turbo
-    version: ~> 0.20.2
+    version: 0.20.2
   crumble-orma:
     github: sbsoftware/crumble-orma
-    version: ~> 0.5.0
+    version: 0.5.0
   crumble-crababel:
     github: sbsoftware/crumble-crababel
-    version: ~> 0.2.0
+    version: 0.2.0
   crumble-jobs:
     github: sbsoftware/crumble-jobs
-    version: ~> 0.2.1
+    version: 0.2.1
   crumble-stimulus:
     github: sbsoftware/crumble-stimulus
-    version: ~> 0.4.3
+    version: 0.4.3
+  crygen:
+    github: tamdaz/crygen
+    version: 1.3.0
   css:
     github: sbsoftware/css.cr
-    version: ~> 0.5.0
+    version: 0.5.0
+  csuuid:
+    github: wyhaines/csuuid.cr
+    version: 1.0.2
+  db:
+    github: crystal-lang/crystal-db
+    version: 0.14.0
+  debug:
+    github: sija/debug.cr
+    version: 2.0.4
+  http_accept:
+    github: becauseofprog/http_accept
+    version: 0.1.0
   js:
     github: sbsoftware/js.cr
-    version: ~> 1.8.2
+    version: 1.8.2
+  nbchannel:
+    github: wyhaines/nbchannel.cr
+    version: 0.1.0
+  opentelemetry-api:
+    github: wyhaines/opentelemetry-api.cr
+    version: 0.5.1
+  opentelemetry-sdk:
+    github: wyhaines/opentelemetry-sdk.cr
+    version: 0.6.2
+  orma:
+    github: sbsoftware/orma
+    version: 0.13.0
+  parse_date:
+    github: wyhaines/parsedate.cr
+    version: 0.1.2
+  protobuf:
+    github: jeromegn/protobuf.cr
+    version: 2.3.1
+  retriable:
+    github: sija/retriable.cr
+    version: 0.2.5
+  splay_tree_map:
+    github: wyhaines/splay_tree_map.cr
+    version: 0.4.0
+  sqlite3:
+    github: crystal-lang/crystal-sqlite3
+    version: 0.23.0
+  stimulus:
+    github: sbsoftware/stimulus.cr
+    version: 0.7.0
+  time-ext:
+    github: wyhaines/time-ext.cr
+    version: 1.0.1
   to_html:
     github: sbsoftware/to_html.cr
-    version: ~> 1.7.1
+    version: 1.7.1
 
 targets:
   hot-crumble:
