@@ -41,8 +41,5 @@ targets:
   hot-crumble:
     main: src/cli.cr
 
-scripts:
-  postinstall: shards build
-
 executables:
   - hot-crumble
