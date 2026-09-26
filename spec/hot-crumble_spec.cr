@@ -320,7 +320,7 @@ describe "hot-crumble integration" do
 
   it "updates models from model-aware crumble-turbo action forms" do
     counter = HotCrumbleSpec::EditableCounter.create(count: 1)
-    ctx = Crumble::Server::TestRequestContext.new(method: "POST", resource: HotCrumbleSpec::EditableCounter::SetCountAction.uri_path(counter.id.value), body: URI::Params.encode({value: "5"}))
+    ctx = Crumble::Server::TestRequestContext.new(method: "POST", resource: HotCrumbleSpec::EditableCounter::SetCountAction.uri_path(counter.id.value), body: URI::Params.encode({value: "5"}), headers: HTTP::Headers{"Content-Type" => "application/x-www-form-urlencoded"})
     HotCrumbleSpec::EditableCounter::SetCountAction.handle(ctx).should be_true
 
     HotCrumbleSpec::EditableCounter.find(counter.id.value).count.value.should eq(5)
@@ -329,7 +329,7 @@ describe "hot-crumble integration" do
   it "preserves errors and model-aware action form options on invalid submission" do
     counter = HotCrumbleSpec::EditableCounter.create(count: 2)
     response = String.build do |io|
-      ctx = Crumble::Server::TestRequestContext.new(response_io: io, method: "POST", resource: HotCrumbleSpec::EditableCounter::SetCountAction.uri_path(counter.id.value), body: URI::Params.encode({value: ""}))
+      ctx = Crumble::Server::TestRequestContext.new(response_io: io, method: "POST", resource: HotCrumbleSpec::EditableCounter::SetCountAction.uri_path(counter.id.value), body: URI::Params.encode({value: ""}), headers: HTTP::Headers{"Content-Type" => "application/x-www-form-urlencoded"})
       HotCrumbleSpec::EditableCounter::SetCountAction.handle(ctx).should be_true
       ctx.response.status_code.should eq(200)
       ctx.response.flush
