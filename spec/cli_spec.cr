@@ -11,6 +11,7 @@ describe HotCrumble::CLI do
       Dir.cd(path) do
         HotCrumble::CLI.new(["init", "--name", "test_app"]).run.should eq(0)
         File.read("Dockerfile").should eq(HotCrumble::CLI::DOCKERFILE_TEMPLATE)
+        File.read("Dockerfile").should contain("libsqlite3-dev")
       end
     ensure
       FileUtils.rm_rf(path)
