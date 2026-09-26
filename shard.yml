@@ -1,5 +1,5 @@
 name: hot-crumble
-version: 0.5.0
+version: 0.5.1
 
 authors:
   - Stefan Bilharz <stefan@sbsoftware.de>
@@ -40,9 +40,6 @@ dependencies:
 targets:
   hot-crumble:
     main: src/cli.cr
-
-scripts:
-  postinstall: shards build
 
 executables:
   - hot-crumble
