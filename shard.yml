@@ -11,7 +11,7 @@ license: MIT
 dependencies:
   crababel:
     github: sbsoftware/crababel
-    version: ~> 0.2.0
+    version: ~> 0.3.0
   crumble:
     github: sbsoftware/crumble
     version: ~> 0.34.2
@@ -23,7 +23,7 @@ dependencies:
     version: ~> 0.6.0
   crumble-crababel:
     github: sbsoftware/crumble-crababel
-    version: ~> 0.2.0
+    version: ~> 0.2.1
   crumble-jobs:
     github: sbsoftware/crumble-jobs
     version: ~> 0.2.1
