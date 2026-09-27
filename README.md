@@ -16,6 +16,8 @@
 
 2. Run `shards install`
 
+3. Run the CLI tool with `bin/hot-crumble`
+
 ## Usage
 
 ```crystal
