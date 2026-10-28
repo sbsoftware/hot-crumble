@@ -23,6 +23,8 @@ module HotCrumbleSpec
   style AppStyle do
     rule body do
       font_size 14.px
+      container_type :inline_size
+      width 100.cqw
     end
   end
 
@@ -89,6 +91,8 @@ module HotCrumbleSpec
   class Article < TestRecord
     id_column id : Int64
     column title : String
+    column rating : Float64 = 0.0
+    column confidence : Float32 = 0.0_f32
   end
 
   class MissingArticleView
@@ -173,6 +177,22 @@ module HotCrumbleSpec
 
     def self.clear : Nil
       @@runs.clear
+    end
+  end
+
+  class ParameterlessJob < Crumble::Jobs::Job
+    @@runs = 0
+
+    def perform : Nil
+      @@runs += 1
+    end
+
+    def self.runs : Int32
+      @@runs
+    end
+
+    def self.clear : Nil
+      @@runs = 0
     end
   end
 
@@ -289,7 +309,7 @@ describe "hot-crumble integration" do
     end
 
     response.should contain(%(href="#{HotCrumbleSpec::AppStyle.uri_path}"))
-    AssetFileRegistry.query(HotCrumbleSpec::AppStyle.uri_path).not_nil!.contents.should eq("body {\n  font-size: 14px;\n}")
+    AssetFileRegistry.query(HotCrumbleSpec::AppStyle.uri_path).not_nil!.contents.should eq("body {\n  font-size: 14px;\n  container-type: inline-size;\n  width: 100cqw;\n}")
   end
 
   it "handles a crumble-turbo action" do
@@ -316,6 +336,12 @@ describe "hot-crumble integration" do
     ctx = Crumble::Server::TestRequestContext.new
 
     counter.set_count_action_template(ctx).to_html.should contain(%(<option value="4">Current 4</option>))
+  end
+
+  it "renders model templates through the context-aware API" do
+    counter = HotCrumbleSpec::Counter.new(id: 9_i64, count: 6)
+
+    counter.count_view(test_handler_context).to_html.should contain(">6</div>")
   end
 
   it "updates models from model-aware crumble-turbo action forms" do
@@ -353,6 +379,14 @@ describe "hot-crumble integration" do
     response.should contain("Upgraded article")
   end
 
+  it "persists floating-point Orma columns" do
+    article = HotCrumbleSpec::Article.create(title: "Rated article", rating: 4.75, confidence: 0.8_f32)
+    found = HotCrumbleSpec::Article.find(article.id.value)
+
+    found.rating.value.should eq(4.75)
+    found.confidence.value.should be_close(0.8_f32, 0.0001_f32)
+  end
+
   it "renders the configured fallback view when a page model is missing" do
     response = String.build do |io|
       ctx = Crumble::Server::TestRequestContext.new(response_io: io, method: "GET", resource: HotCrumbleSpec::ArticlePage.uri_path(article_id: 404))
@@ -382,6 +416,7 @@ describe "hot-crumble integration" do
     end
 
     response.should contain("<h1>Direkter Seiten-Gruss</h1>")
+    Crababel.locales.should eq(["de", "en"])
   end
 
   it "registers Crumble robots.txt as a text asset" do
@@ -438,6 +473,21 @@ describe "hot-crumble integration" do
 
     HotCrumbleSpec::RetryingAuditJob.runs.should eq(["retry", "retry"])
     worker.run_once(20.milliseconds).should be_false
+  end
+
+  it "schedules parameterless jobs without a params declaration" do
+    HotCrumbleSpec::ParameterlessJob.clear
+    Crumble::Jobs.set_queue(Crumble::Jobs::InMemoryQueue.new)
+    HotCrumbleSpec::ParameterlessJob.enqueue_in(10.milliseconds)
+
+    worker = Crumble::Jobs::Worker.new(poll_interval: 1.millisecond)
+    worker.run_once(100.milliseconds).should be_true
+    deadline = Time.instant + 100.milliseconds
+    until HotCrumbleSpec::ParameterlessJob.runs == 1 || Time.instant >= deadline
+      sleep 1.millisecond
+    end
+
+    HotCrumbleSpec::ParameterlessJob.runs.should eq(1)
   end
 
   it "registers stimulus controllers in the shared layout assets" do
