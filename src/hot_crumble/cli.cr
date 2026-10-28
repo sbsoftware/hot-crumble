@@ -8,7 +8,6 @@ module HotCrumble
 
     CRUMBLE_CLI             = Path["lib", "crumble", "src", "cli.cr"]
     HOT_CRUMBLE_DIRECTORIES = [Path["config"], Path["config", "locales"], Path["tmp"], Path["tmp", "sessions"], Path["src", "actions"]]
-    DOCKERFILE_TEMPLATE     = {{read_file "#{__DIR__}/cli/templates/Dockerfile"}}
     APPLICATION_RECORD      = {{read_file "#{__DIR__}/cli/templates/application_record.cr"}}
     EN_LOCALE_TEMPLATE      = {{read_file "#{__DIR__}/cli/templates/en.yml"}}
 
@@ -46,7 +45,7 @@ module HotCrumble
       return status.exit_code unless status.success?
 
       HOT_CRUMBLE_DIRECTORIES.each { |path| Dir.mkdir_p(path) }
-      {Path["src", "models", "application_record.cr"] => APPLICATION_RECORD, Path["config", "locales", "en.yml"] => EN_LOCALE_TEMPLATE, Path["Dockerfile"] => DOCKERFILE_TEMPLATE}.each do |path, contents|
+      {Path["src", "models", "application_record.cr"] => APPLICATION_RECORD, Path["config", "locales", "en.yml"] => EN_LOCALE_TEMPLATE}.each do |path, contents|
         File.write(path, contents) unless File.exists?(path)
       end
       0

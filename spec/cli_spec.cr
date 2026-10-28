@@ -16,8 +16,6 @@ describe HotCrumble::CLI do
         File.exists?("src/actions").should be_true
         File.read("src/models/application_record.cr").should eq(HotCrumble::CLI::APPLICATION_RECORD)
         File.read("config/locales/en.yml").should eq(HotCrumble::CLI::EN_LOCALE_TEMPLATE)
-        File.read("Dockerfile").should eq(HotCrumble::CLI::DOCKERFILE_TEMPLATE)
-        File.read("Dockerfile").should contain("libsqlite3-dev")
       end
     ensure
       FileUtils.rm_rf(path)
@@ -49,7 +47,6 @@ describe HotCrumble::CLI do
       Dir.cd(path) do
         HotCrumble::CLI.new(["init", "--name", "test_app"], IO::Memory.new, IO::Memory.new).run.should_not eq(0)
         File.exists?("config").should be_false
-        File.exists?("Dockerfile").should be_false
       end
     ensure
       FileUtils.rm_rf(path)
