@@ -17,7 +17,7 @@ dependencies:
     version: ~> 0.35.0
   crumble-turbo:
     github: sbsoftware/crumble-turbo
-    version: ~> 0.22.0
+    version: ~> 0.22.1
   crumble-orma:
     github: sbsoftware/crumble-orma
     version: ~> 0.6.0
@@ -32,7 +32,7 @@ dependencies:
     version: ~> 0.5.0
   css:
     github: sbsoftware/css.cr
-    version: ~> 0.7.0
+    version: ~> 0.8.0
   js:
     github: sbsoftware/js.cr
     version: ~> 1.8.2
